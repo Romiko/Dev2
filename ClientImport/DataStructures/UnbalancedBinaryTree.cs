@@ -45,7 +45,7 @@ namespace ClientImport.DataStructures
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The type {0} cannot be compared. It must implement IComparable<T>.", typeof(TKey).FullName));
         }
 
-        private void Add(TKey key, TValue value)
+        public void Add(TKey key, TValue value)
         {
             var child = new BinaryTreeNode<TKey, TValue> { KeyValue = new KeyValuePair<TKey, TValue>(key, value) };
 
