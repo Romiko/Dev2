@@ -7,11 +7,18 @@ namespace ClientImport.DataStructures
 {
     internal enum NodeType {LeafeNode, HasOneChild, HasTwoChildren}
     internal enum NodeLinkToParentAs {Left, Right}
+    public enum InOrderNode {Successor, Predecessor}
 
     public partial class UnbalancedBinaryTree<TKey, TValue> : IEnumerable<BinaryTreeNode<TKey, TValue>>
         where TKey : IComparable
     {
         public BinaryTreeNode<TKey, TValue> Root;
+
+        /// <summary>
+        /// Consistently using the in-order successor or the in-order predecessor for every instance of the two-child case can lead to an unbalanced tree, so some implementations select one or the other at different times.
+        /// </summary>
+        public InOrderNode? ForceDeleteType = null;
+
         private readonly IComparer<TKey> comparer;
 
         private readonly StringComparison defaultStringComparison = StringComparison.InvariantCulture;
@@ -48,7 +55,7 @@ namespace ClientImport.DataStructures
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The type {0} cannot be compared. It must implement IComparable<T>.", typeof(TKey).FullName));
         }
 
-        public void Delete (TKey key)
+        public void Delete (TKey key )
         {
             var node = Find(key);
             if (node == null)
@@ -72,6 +79,48 @@ namespace ClientImport.DataStructures
                 else
                     node.Parent.Left = theChild;
             }
+            if (nodeType != NodeType.HasTwoChildren) return;
+            var replaceInOrderType = RollDiceForSuccessorOrPredecessor();
+
+            if (replaceInOrderType == InOrderNode.Successor)
+                UseSuccessor(node);
+            else
+                UsePredecessor(node);
+        }
+
+        private static void UsePredecessor(BinaryTreeNode<TKey, TValue> node)
+        {
+            BinaryTreeNode<TKey, TValue> replaceWith = ReadLastRightNode(node.Left);
+            var deletedNodeParent = node.Parent;
+            replaceWith.Parent = deletedNodeParent;
+            node.KeyValue = replaceWith.KeyValue;
+
+            node.Left = replaceWith.Left;
+
+            if (node.Left != null) node.Left.Parent = node;
+            if (node.Right != null) node.Right.Parent = node;
+        }
+
+        private static void UseSuccessor(BinaryTreeNode<TKey, TValue> node)
+        {
+            BinaryTreeNode<TKey, TValue> replaceWith = ReadLastLeftNode(node.Right);
+            var deletedNodeParent = node.Parent;
+            replaceWith.Parent = deletedNodeParent;
+            node.KeyValue = replaceWith.KeyValue;
+            node.Right = replaceWith.Right;
+
+            if (node.Left != null) node.Left.Parent = node;
+            if (node.Right != null) node.Right.Parent = node;
+        }
+
+        private InOrderNode RollDiceForSuccessorOrPredecessor()
+        {
+            if (ForceDeleteType.HasValue)
+                return ForceDeleteType.Value;
+
+            var random = new Random();
+            var choice = random.Next(0, 2);
+            return choice == 0 ? InOrderNode.Predecessor : InOrderNode.Successor;
         }
 
         private static NodeLinkToParentAs NodeLinkedToParentAs(BinaryTreeNode<TKey, TValue> node)
@@ -153,6 +202,21 @@ namespace ClientImport.DataStructures
                 if (node.Left != null)
                 {
                     node = node.Left;
+                    continue;
+                }
+                break;
+            }
+            return node;
+        }
+
+        private static BinaryTreeNode<TKey, TValue> ReadLastRightNode(BinaryTreeNode<TKey, TValue> start)
+        {
+            var node = start;
+            while (true)
+            {
+                if (node.Right != null)
+                {
+                    node = node.Right;
                     continue;
                 }
                 break;
