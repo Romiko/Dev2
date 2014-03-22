@@ -54,7 +54,7 @@
     <Compile Include="BinaryTreeTests.cs" />
     <Compile Include="DelimiterParserTests.cs" />
     <Compile Include="ImporterTests.cs" />
-    <Compile Include="PersonStorageTests.cs" />
+    <Compile Include="PersonRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

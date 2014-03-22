@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using ClientImport.DTO;
 
-namespace ClientImport
+namespace ClientImport.Repository
 {
     public enum SortKey { SurnameFirstNameAge, SurnameFirstName }
 
-    public interface IStorage <in TData>
+    public interface IRepository <in TData>
     {
         SortKey DefaultSortKey { get; }
-        void Add(TData person);
+        void Add(TData data);
         void Import(IEnumerable<dynamic> records, bool ignoreDuplicates = true);
     }
 }

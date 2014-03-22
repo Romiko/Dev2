@@ -4,26 +4,26 @@ using System.Linq;
 using ClientImport.DTO;
 using ClientImport.DataStructures;
 
-namespace ClientImport
+namespace ClientImport.Repository
 {
     public interface IBinaryTree<in TKey, in TValue>
     {
         void Add(TKey key, TValue value);
     }
 
-    public class PersonStorage : IStorage<IPerson>
+    public class PersonRepository : IRepository<IPerson>
     {
         public UnbalancedBinaryTree<string, IPerson> Data;
         public SortKey DefaultSortKey { get { return defaultSortKey; } }
 
         readonly SortKey defaultSortKey = SortKey.SurnameFirstNameAge;
 
-        public PersonStorage()
+        public PersonRepository()
         {
             Data = new UnbalancedBinaryTree<string, IPerson>();
         }
 
-        public PersonStorage(SortKey sortKey)
+        public PersonRepository(SortKey sortKey)
             : this()
         {
             defaultSortKey = sortKey;
