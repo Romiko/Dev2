@@ -7,6 +7,7 @@ namespace ClientImport.Tests
     [TestClass]
     public class ImporterTests
     {
+        private const char Delimiter = ',';
         [TestMethod]
         public void ShouldLoadTextFileData()
         {
@@ -14,7 +15,7 @@ namespace ClientImport.Tests
             var asm = Assembly.GetExecutingAssembly();
 
             //Act
-            var importer = new Importer(asm.GetManifestResourceStream("ClientImport.Tests.records.txt"), ',');
+            var importer = new Importer(asm.GetManifestResourceStream("ClientImport.Tests.records.txt"), Delimiter);
 
             //Assert
             var data = importer.Data.ToList();
@@ -31,7 +32,7 @@ namespace ClientImport.Tests
             var asm = Assembly.GetExecutingAssembly();
 
             //Act
-            var importer = new Importer(asm.GetManifestResourceStream("ClientImport.Tests.recordsColumnChange.txt"), ',');
+            var importer = new Importer(asm.GetManifestResourceStream("ClientImport.Tests.recordsColumnChange.txt"), Delimiter);
 
             //Assert
             var data = importer.Data.ToList();
