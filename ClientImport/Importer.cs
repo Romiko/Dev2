@@ -36,7 +36,6 @@ namespace ClientImport
 
         private void LoadDataFromFile(string content, char delimiter)
         {
-
                 Data = from dynamic c in new DelimiterParser(content, delimiter)
                        select c;
             }
