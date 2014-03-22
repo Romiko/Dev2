@@ -55,10 +55,21 @@ namespace ClientImport.Tests
         public void DefaultRootNodeHasRightChildNode()
         {
             // Arrange
-            var tree = new UnbalancedBinaryTree<int, int> {{2, 1}, {1, 2}, {3, 3}, {4, 4}};
+            var tree = new UnbalancedBinaryTree<int, int> { { 2, 1 }, { 1, 2 }, { 3, 3 }, { 4, 4 } };
 
             //Assert
             Assert.IsTrue(tree.Root.Right.KeyValue.Key == 3);
+        }
+
+        [TestMethod]
+        public void UseIndexerToAccessKeyValue()
+        {
+            // Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 1, 777 }, { 2, 2 }, { 3, 333 }, { 4, 4 } };
+
+            //Assert
+            Assert.AreEqual(tree[1], 777);
+            Assert.AreEqual(tree[3], 333);
         }
 
         [TestMethod]
