@@ -5,6 +5,9 @@ using System.Globalization;
 
 namespace ClientImport.DataStructures
 {
+    internal enum NodeType {LeafeNode, HasOneChild, HasTwoChildren}
+    internal enum NodeLinkToParentAs {Left, Right}
+
     public partial class UnbalancedBinaryTree<TKey, TValue> : IEnumerable<BinaryTreeNode<TKey, TValue>>
         where TKey : IComparable
     {
@@ -43,6 +46,47 @@ namespace ClientImport.DataStructures
                 return Comparer<TKey>.Default;
             }
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The type {0} cannot be compared. It must implement IComparable<T>.", typeof(TKey).FullName));
+        }
+
+        public void Delete (TKey key)
+        {
+            var node = Find(key);
+            if (node == null)
+                return;
+
+            var nodeType = GetNodeType(node);
+
+            if(nodeType == NodeType.LeafeNode)
+            {
+                if(NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
+                    node.Parent.Right = null;
+                else
+                    node.Parent.Left = null;
+            }
+            if(nodeType == NodeType.HasOneChild)
+            {
+                var theChild = node.Left ?? node.Right;
+                theChild.Parent = node.Parent;
+                if (NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
+                    node.Parent.Right = theChild;
+                else
+                    node.Parent.Left = theChild;
+            }
+        }
+
+        private static NodeLinkToParentAs NodeLinkedToParentAs(BinaryTreeNode<TKey, TValue> node)
+        {
+            return node.Parent.Left == node ? NodeLinkToParentAs.Left : NodeLinkToParentAs.Right;
+        }
+
+        private NodeType GetNodeType(BinaryTreeNode<TKey, TValue> node)
+        {
+            if(node.Left == null && node.Right == null)
+                return NodeType.LeafeNode;
+            if(node.Left != null && node.Right != null)
+                return NodeType.HasTwoChildren;
+
+                return NodeType.HasOneChild;
         }
 
         public void Add(TKey key, TValue value)

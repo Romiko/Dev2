@@ -11,6 +11,71 @@ namespace ClientImport.Tests
     public class BinaryTreeTests
     {
         [TestMethod]
+        public void CanDeleteLeafNode()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 2, 2 }, { 1, 1 }, {3, 3}, {4, 4} };
+            var expected = new[] {1, 2, 3}.ToList();
+            //Act
+            tree.Delete(4);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
+        public void CanDeleteNodeWithOneRightChild()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 10, 10 }, {4, 4}, {6, 6} };
+            var expected = new[] { 1, 4, 6, 9, 10 }.ToList();
+            //Act
+            tree.Delete(3);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
+        public void CanDeleteNodeWithOneRightChildWithNestedBinaryTree()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 10, 10 }, { 4, 4 }, { 6, 6 }, {5, 5} };
+            var expected = new[] { 1, 4, 5, 6, 9, 10 }.ToList();
+            //Act
+            tree.Delete(3);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
+        public void CanDeleteNodeWithOneLeftChildNestedBinaryTree()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { {100,100}, {50,50}, {40, 40}, {25, 25}, {26, 26}, {60, 60}, {20, 20}};
+            var expected = new[] { 20,25,26,50,60,100 }.ToList();
+            //Act
+            tree.Delete(40);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
+        public void CanDeleteNodeWithOneLeftChild()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 2, 2 }, { 10, 10 }, { 11, 11 } };
+            var expected = new[] { 1, 2, 9, 10, 11 }.ToList();
+            //Act
+            tree.Delete(3);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void ExpectExceptionForDuplicateSearchKey()
         {
