@@ -90,7 +90,7 @@ namespace ClientImport.DataStructures
 
         private static void UsePredecessor(BinaryTreeNode<TKey, TValue> node)
         {
-            BinaryTreeNode<TKey, TValue> replaceWith = ReadLastRightNode(node.Left);
+            var replaceWith = ReadLastRightNode(node.Left);
             var deletedNodeParent = node.Parent;
             replaceWith.Parent = deletedNodeParent;
             node.KeyValue = replaceWith.KeyValue;
@@ -103,10 +103,11 @@ namespace ClientImport.DataStructures
 
         private static void UseSuccessor(BinaryTreeNode<TKey, TValue> node)
         {
-            BinaryTreeNode<TKey, TValue> replaceWith = ReadLastLeftNode(node.Right);
+            var replaceWith = ReadLastLeftNode(node.Right);
             var deletedNodeParent = node.Parent;
             replaceWith.Parent = deletedNodeParent;
             node.KeyValue = replaceWith.KeyValue;
+
             node.Right = replaceWith.Right;
 
             if (node.Left != null) node.Left.Parent = node;
