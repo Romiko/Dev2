@@ -4,28 +4,28 @@ using System.Collections.Generic;
 
 namespace ClientImport.DataStructures
 {
-    public partial class UnbalancedBinaryTree<TKey, TValue>
+    public partial class BinarySearchTree<TKey, TValue>
     {
         class Enumerator : IEnumerator<BinaryTreeNode<TKey, TValue>>
         {
             BinaryTreeNode<TKey, TValue> current;
-            readonly UnbalancedBinaryTree<TKey, TValue> theTree;
+            readonly BinarySearchTree<TKey, TValue> _theSearchTree;
 
-            public Enumerator(UnbalancedBinaryTree<TKey, TValue> tree)
+            public Enumerator(BinarySearchTree<TKey, TValue> searchTree)
             {
-                theTree = tree;
+                _theSearchTree = searchTree;
                 current = null;
             }
 
             public bool MoveNext()
             {
-                return theTree.Root != null && InOrderTraversal();
+                return _theSearchTree.Root != null && InOrderTraversal();
             }
 
             private bool InOrderTraversal()
             {
                 if (current == null)
-                    current = ReadLastLeftNode(theTree.Root);
+                    current = ReadLastLeftNode(_theSearchTree.Root);
                 else
                 {
                     if (current.Right != null)
@@ -39,7 +39,7 @@ namespace ClientImport.DataStructures
                             current = current.Parent;
                             if (current != null)
                             {
-                                var compare = theTree.comparer.Compare(current.KeyValue.Key, currentKey);
+                                var compare = _theSearchTree.comparer.Compare(current.KeyValue.Key, currentKey);
                                 if (compare < 0) continue;
                             }
                             break;

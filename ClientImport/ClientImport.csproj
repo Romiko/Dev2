@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataStructures\UnbalancedBinaryTree.cs" />
+    <Compile Include="DataStructures\BinarySearchTree.cs" />
     <Compile Include="DataStructures\BinaryTreeNode.cs" />
     <Compile Include="DTO\Person.cs" />
     <Compile Include="DTO\IPerson.cs" />
@@ -53,7 +53,7 @@
     <Compile Include="Repository\PersonRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataStructures\BinaryTree.Enumerator.cs" />
+    <Compile Include="DataStructures\BinarySearchTree.Enumerator.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

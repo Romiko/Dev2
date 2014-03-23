@@ -9,7 +9,7 @@ namespace ClientImport.DataStructures
     internal enum NodeLinkToParentAs { Root, Left, Right}
     public enum InOrderNode {Successor, Predecessor}
 
-    public partial class UnbalancedBinaryTree<TKey, TValue> : IEnumerable<BinaryTreeNode<TKey, TValue>>
+    public partial class BinarySearchTree<TKey, TValue> : IEnumerable<BinaryTreeNode<TKey, TValue>>
         where TKey : IComparable
     {
         public BinaryTreeNode<TKey, TValue> Root;
@@ -23,12 +23,12 @@ namespace ClientImport.DataStructures
 
         private readonly StringComparison defaultStringComparison = StringComparison.InvariantCulture;
 
-        public UnbalancedBinaryTree()
+        public BinarySearchTree()
         {
             comparer = GetComparer();
         }
 
-        public UnbalancedBinaryTree(StringComparison defaultStringComparison)
+        public BinarySearchTree(StringComparison defaultStringComparison)
         {
             this.defaultStringComparison = defaultStringComparison;
             comparer = GetComparer();

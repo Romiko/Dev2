@@ -9,14 +9,14 @@ namespace ClientImport.Repository
 {
     public partial class PersonRepository : IRepository<IPerson>
     {
-        private readonly UnbalancedBinaryTree<string, IPerson> data;
+        private readonly BinarySearchTree<string, IPerson> data;
         public SortKey DefaultSortKey { get { return defaultSortKey; } }
 
         readonly SortKey defaultSortKey = SortKey.SurnameFirstNameAge;
 
         public PersonRepository()
         {
-            data = new UnbalancedBinaryTree<string, IPerson>();
+            data = new BinarySearchTree<string, IPerson>();
         }
 
         public PersonRepository(SortKey sortKey)
