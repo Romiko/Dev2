@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ClientImport.DTO;
 using ClientImport.DataStructures;
 using ClientImport.Extensions;
+using ClientImport.Repository;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ClientImport.Tests
@@ -10,12 +13,52 @@ namespace ClientImport.Tests
     [TestClass]
     public class BinaryTreeTests
     {
+        /// <summary>
+        /// The UnbalancedBinaryTree acts very similar to the SortedDictionary in .NET, so we can compare how both sort.
+        /// </summary>
+        [TestMethod]
+        public void BinaryTreeMustSortTheSameAsSortedDictionary()
+        {
+            // Arrange
+            var asm = Assembly.GetExecutingAssembly();
+            var importer = new Importer(asm.GetManifestResourceStream("ClientImport.Tests.records.txt"), ',');
+            var dictionary = new SortedDictionary<string, IPerson>();
+            var tree = new UnbalancedBinaryTree<string, IPerson>();
+
+            //Act
+            importer.Data
+                           .ToList()
+                           .ForEach(record =>
+                           {
+                               var person = new Person
+                               {
+                                   FirstName = record.FirstName,
+                                   Surname = record.Surname,
+                                   Age = Convert.ToInt16(record.Age)
+                               };
+                               var key = PersonRepository.BuildKey(person, SortKey.SurnameFirstNameAge);
+                               if (tree.Find(key) == null)
+                                   tree.Add(key, person);
+                           }
+                              );
+
+            tree
+                .ToList()
+                .Shuffle() //Shuffle result from binary tree, to test sorting
+                .ForEach(r => dictionary.Add(PersonRepository.BuildKey(r.KeyValue.Value, SortKey.SurnameFirstNameAge), r.KeyValue.Value));
+
+            var expected = dictionary.Select(r => r.Value).ToList();
+            var actual = tree.Select(n => n.KeyValue.Value).ToList();
+            // Assert
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
         [TestMethod]
         public void CanDeleteLeafNode()
         {
             //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { { 2, 2 }, { 1, 1 }, {3, 3}, {4, 4} };
-            var expected = new[] {1, 2, 3}.ToList();
+            var tree = new UnbalancedBinaryTree<int, int> { { 2, 2 }, { 1, 1 }, { 3, 3 }, { 4, 4 } };
+            var expected = new[] { 1, 2, 3 }.ToList();
             //Act
             tree.Delete(4);
             var result = tree.Select(r => r.KeyValue.Value).ToList();
@@ -27,7 +70,7 @@ namespace ClientImport.Tests
         public void CanDeleteNodeWithOneRightChild()
         {
             //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 10, 10 }, {4, 4}, {6, 6} };
+            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 10, 10 }, { 4, 4 }, { 6, 6 } };
             var expected = new[] { 1, 4, 6, 9, 10 }.ToList();
             //Act
             tree.Delete(3);
@@ -40,7 +83,7 @@ namespace ClientImport.Tests
         public void CanDeleteNodeWithOneRightChildWithNestedBinaryTree()
         {
             //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 10, 10 }, { 4, 4 }, { 6, 6 }, {5, 5} };
+            var tree = new UnbalancedBinaryTree<int, int> { { 9, 9 }, { 1, 1 }, { 3, 3 }, { 10, 10 }, { 4, 4 }, { 6, 6 }, { 5, 5 } };
             var expected = new[] { 1, 4, 5, 6, 9, 10 }.ToList();
             //Act
             tree.Delete(3);
@@ -53,8 +96,8 @@ namespace ClientImport.Tests
         public void CanDeleteNodeWithOneLeftChildNestedBinaryTree()
         {
             //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { {100,100}, {50,50}, {40, 40}, {25, 25}, {26, 26}, {60, 60}, {20, 20}};
-            var expected = new[] { 20,25,26,50,60,100 }.ToList();
+            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
+            var expected = new[] { 20, 25, 26, 50, 60, 100 }.ToList();
             //Act
             tree.Delete(40);
             var result = tree.Select(r => r.KeyValue.Value).ToList();
@@ -176,7 +219,7 @@ namespace ClientImport.Tests
         public void CanDeleteRootNodeWithTwoChildrenNestedBinaryTreeUseSuccessor()
         {
             //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, {200, 200}, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
+            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 200, 200 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
             tree.ForceDeleteType = InOrderNode.Successor;
             var expected = new[] { 20, 25, 26, 40, 50, 60, 200 }.ToList();
             //Act
@@ -217,7 +260,7 @@ namespace ClientImport.Tests
         public void ExpectExceptionForDuplicateSearchKey()
         {
             // Act
-            new UnbalancedBinaryTree<string, IPerson> {{"key1", null}, {"key1", null}};
+            var actual = new UnbalancedBinaryTree<string, IPerson> { { "key1", null }, { "key1", null } };
         }
 
         [TestMethod]
@@ -237,7 +280,7 @@ namespace ClientImport.Tests
         public void DefaultRootNodeHasNoParent()
         {
             // Arrange
-            var tree = new UnbalancedBinaryTree<int, int> {{1, 1}, {2, 2}, {3, 3}, {4, 4}};
+            var tree = new UnbalancedBinaryTree<int, int> { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
 
             //Assert
             Assert.IsTrue(tree.Root.Parent == null);
@@ -247,7 +290,7 @@ namespace ClientImport.Tests
         public void DefaultRootNodeHasLeftChildNode()
         {
             // Arrange
-            var tree = new UnbalancedBinaryTree<int, int> {{2, 1}, {1, 2}, {3, 3}, {4, 4}};
+            var tree = new UnbalancedBinaryTree<int, int> { { 2, 1 }, { 1, 2 }, { 3, 3 }, { 4, 4 } };
 
             //Assert
             Assert.IsTrue(tree.Root.Left.KeyValue.Key == 1);
@@ -277,8 +320,7 @@ namespace ClientImport.Tests
         [TestMethod]
         public void WhenUsingStringAsKeyOrdinalSortIsUsed()
         {
-            var data = new UnbalancedBinaryTree<string, object>(StringComparison.Ordinal) 
-            {{'\u0069'.ToString(), null}, {'\u0131'.ToString(), null}, {'\u0049'.ToString(), null}};
+            var data = new UnbalancedBinaryTree<string, object>(StringComparison.Ordinal) { { '\u0069'.ToString(), null }, { '\u0131'.ToString(), null }, { '\u0049'.ToString(), null } };
 
             //Assert
             Assert.IsTrue(data.First().KeyValue.Key == '\u0049'.ToString());
@@ -289,8 +331,7 @@ namespace ClientImport.Tests
         public void WhenUsingStringAsKeyInVariantCultureSortIsDefault()
         {
             //Arrange Act
-            var data = new UnbalancedBinaryTree<string, object>
-            {{'\u0069'.ToString(), null}, {'\u0131'.ToString(), null}, {'\u0049'.ToString(), null}};
+            var data = new UnbalancedBinaryTree<string, object> { { '\u0069'.ToString(), null }, { '\u0131'.ToString(), null }, { '\u0049'.ToString(), null } };
 
             //Assert
             Assert.IsTrue(data.First().KeyValue.Key == '\u0069'.ToString());
@@ -312,7 +353,7 @@ namespace ClientImport.Tests
             var traversed = data.ToList();
 
             //Assert
-            CollectionAssert.AreEqual(expected, traversed.Select(r => r.KeyValue.Key).ToList() );
+            CollectionAssert.AreEqual(expected, traversed.Select(r => r.KeyValue.Key).ToList());
         }
 
         /// <summary>
@@ -336,7 +377,7 @@ namespace ClientImport.Tests
             traversed.ForEach(currentNode =>
             {
                 if (currentNode.Parent == null) return;
-                    Assert.IsTrue(currentNode.Left == null);
+                Assert.IsTrue(currentNode.Left == null);
             });
         }
 
@@ -371,7 +412,7 @@ namespace ClientImport.Tests
             var data = new UnbalancedBinaryTree<int, int>();
 
             var keys = Enumerable.Range(1, 50).ToList();
-            keys.Shuffle().ForEach(k => data.Add(k,k));
+            keys.Shuffle().ForEach(k => data.Add(k, k));
 
             //Act
             var traversed = data.ToList();
@@ -380,7 +421,7 @@ namespace ClientImport.Tests
             traversed.ForEach(currentNode =>
                                   {
                                       if (currentNode.Parent == null) return;
-                                      if(currentNode.Parent.Right == currentNode)
+                                      if (currentNode.Parent.Right == currentNode)
                                           Assert.IsTrue(currentNode.KeyValue.Key > currentNode.Parent.KeyValue.Key);
                                   });
         }
