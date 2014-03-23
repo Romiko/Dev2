@@ -25,7 +25,7 @@ namespace ClientImport.Repository
             defaultSortKey = sortKey;
         }
 
-        public static string BuildKey(IPerson person, SortKey key)
+        private static string BuildKey(IPerson person, SortKey key)
         {
             switch (key)
             {
