@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace ClientImport.DataStructures
 {
@@ -13,10 +12,6 @@ namespace ClientImport.DataStructures
     public partial class BinarySearchTree<TKey, TValue> : IEnumerable<BinaryTreeNode<TKey, TValue>>
         where TKey : IComparable
     {
-        public int SelfBalanceBufferSize = 10;
-        public IDictionary<TKey, TValue> SelfBalanceBuffer = new Dictionary<TKey, TValue>(); 
-
-
         public BinaryTreeNode<TKey, TValue> Root;
 
         /// <summary>
@@ -27,41 +22,6 @@ namespace ClientImport.DataStructures
         internal readonly IComparer<TKey> Comparer;
 
         private readonly StringComparison defaultStringComparison = StringComparison.InvariantCulture;
-
-        public bool SelfBalance(TKey key, TValue value)
-        {
-            SelfBalanceBuffer.Add(key, value);
-            if(SelfBalanceBuffer.Count >= SelfBalanceBufferSize)
-            {
-                var buffer = SelfBalanceBuffer;
-                var sorted = new SortedSet<TKey>(Comparer);
-                foreach (var kv in buffer)
-                    sorted.Add(kv.Key);
-
-                if (buffer.Keys.SequenceEqual(sorted))
-                {
-                    BalanceCurrentBuffer(buffer);
-                    return true;
-                }
-                ResetBalanceBuffer();
-            }
-            return false;
-        }
-
-        private void BalanceCurrentBuffer(IEnumerable<KeyValuePair<TKey, TValue>> buffer)
-        {
-            var skip = (SelfBalanceBufferSize/2) - 1;
-            var nodeToSplit = buffer.Skip(skip).Take(1).Single();
-            Delete(nodeToSplit.Key);
-            ResetBalanceBuffer();
-            Add(nodeToSplit.Key, nodeToSplit.Value);
-            ResetBalanceBuffer();
-        }
-
-        private void ResetBalanceBuffer()
-        {
-            SelfBalanceBuffer = new Dictionary<TKey, TValue>();
-        }
 
         public BinarySearchTree()
         {
@@ -234,7 +194,6 @@ namespace ClientImport.DataStructures
                         }
                 }
             }
-            SelfBalance(key, value);
         }
 
         public BinaryTreeNode<TKey, TValue> Find(TKey key)

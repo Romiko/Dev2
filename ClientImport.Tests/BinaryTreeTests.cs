@@ -13,27 +13,6 @@ namespace ClientImport.Tests
     [TestClass]
     public class BinaryTreeTests
     {
-        [TestMethod]
-        public void ShouldNotSelfBalanceWhenAddingLessThanSelfBalanceBufferSizeSortedItems()
-        {
-            //Arrange
-            var tree = new BinarySearchTree<int, object>();
-            //Act
-            Enumerable.Range(1, 5).OrderBy(r => r).ToList().ForEach(r => tree.Add(r, null));
-            //Assert
-            Assert.IsFalse(tree.SelfBalanceBuffer.Count == 0);
-        }
-
-        [TestMethod]
-        public void ShouldSelfBalanceWhenAddingTheSelfBalanceBufferSizeSortedItems()
-        {
-            //Arrange
-            var tree = new BinarySearchTree<int, object>();
-            Enumerable.Range(1, tree.SelfBalanceBufferSize).OrderBy(r => r).ToList().ForEach(r => tree.Add(r, null));
-            //Assert
-            Assert.IsTrue(tree.SelfBalanceBuffer.Count == 0);
-        }
-
         /// <summary>
         /// The BinarySearchTree acts very similar to the SortedDictionary in .NET, so we can compare how both sort.
         /// </summary>
@@ -378,12 +357,12 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
-        public void TreeIsDegenerateWhenGivenSortedDataBelowSelfBalanceBufferSize()
+        public void TreeIsDegenerateWhenGivenSortedData()
         {
             // Arrange
             var tree = new BinarySearchTree<int, int>();
 
-            var keys = Enumerable.Range(1, tree.SelfBalanceBufferSize - 1).ToList();
+            var keys = Enumerable.Range(1, 50).ToList();
             keys.ForEach(k => tree.Add(k, k));
 
             //Act
@@ -395,22 +374,6 @@ namespace ClientImport.Tests
                 if (currentNode.Parent == null) return;
                 Assert.IsTrue(currentNode.Left == null);
             });
-        }
-
-        [TestMethod]
-        public void TreeIsSemiBalancedWhenGivenSortedDataAboveSelfBalanceBufferSize()
-        {
-            // Arrange
-            var tree = new BinarySearchTree<int, int>();
-
-            var keys = Enumerable.Range(1, tree.SelfBalanceBufferSize * 2).ToList();
-            keys.ForEach(k => tree.Add(k, k));
-
-            //Act
-            var traversed = tree.ToList();
-
-            //Assert
-            Assert.IsTrue(traversed[tree.SelfBalanceBufferSize/2].Left != null);
         }
 
         [TestMethod]
