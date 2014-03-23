@@ -71,13 +71,14 @@ namespace ClientImport.DataStructures
             if (nodeType == NodeType.LeafeNode)
             {
                 DeleteLeafNode(node);
+                return;
             }
             if (nodeType == NodeType.HasOneChild)
             {
                 DeleteNodeWithOneChild(node);
+                return;
             }
-            if (nodeType != NodeType.HasTwoChildren) return;
-                DeleteNodeWithTwoChildren(node);
+            DeleteNodeWithTwoChildren(node);
         }
 
         private void DeleteNodeWithTwoChildren(BinaryTreeNode<TKey, TValue> node)
