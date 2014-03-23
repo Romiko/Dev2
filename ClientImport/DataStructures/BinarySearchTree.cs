@@ -159,10 +159,10 @@ namespace ClientImport.DataStructures
 
         public void Add(TKey key, TValue value)
         {
-            var child = new BinaryTreeNode<TKey, TValue> { KeyValue = new KeyValuePair<TKey, TValue>(key, value) };
+            var newNode = new BinaryTreeNode<TKey, TValue> { KeyValue = new KeyValuePair<TKey, TValue>(key, value) };
 
             if (Root == null)
-                Root = child;
+                Root = newNode;
             else
             {
                 var current = Root;
@@ -177,8 +177,8 @@ namespace ClientImport.DataStructures
                             current = current.Left;
                         else
                         {
-                            current.Left = child;
-                            child.Parent = current;
+                            current.Left = newNode;
+                            newNode.Parent = current;
                             break;
                         }
                     else if (compareResult > 0)
@@ -186,8 +186,8 @@ namespace ClientImport.DataStructures
                             current = current.Right;
                         else
                         {
-                            current.Right = child;
-                            child.Parent = current;
+                            current.Right = newNode;
+                            newNode.Parent = current;
                             break;
                         }
                 }
