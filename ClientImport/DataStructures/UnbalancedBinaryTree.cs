@@ -70,35 +70,50 @@ namespace ClientImport.DataStructures
 
             if (nodeType == NodeType.LeafeNode)
             {
-                if (NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
-                    node.Parent.Right = null;
-                else
-                    node.Parent.Left = null;
+                DeleteLeafNode(node);
             }
             if (nodeType == NodeType.HasOneChild)
             {
-                var theChild = node.Left ?? node.Right;
-                theChild.Parent = node.Parent;
-                switch (NodeLinkedToParentAs(node))
-                {
-                    case NodeLinkToParentAs.Right:
-                        node.Parent.Right = theChild;
-                        break;
-                    case NodeLinkToParentAs.Left:
-                        node.Parent.Left = theChild;
-                        break;
-                    case NodeLinkToParentAs.Root:
-                        node.Parent = null;
-                        break;
-                }
+                DeleteNodeWithOneChild(node);
             }
             if (nodeType != NodeType.HasTwoChildren) return;
+                DeleteNodeWithTwoChildren(node);
+        }
+
+        private void DeleteNodeWithTwoChildren(BinaryTreeNode<TKey, TValue> node)
+        {
             var replaceInOrderType = RollDiceForSuccessorOrPredecessor();
 
             if (replaceInOrderType == InOrderNode.Successor)
                 UseSuccessor(node);
             else
                 UsePredecessor(node);
+        }
+
+        private static void DeleteNodeWithOneChild(BinaryTreeNode<TKey, TValue> node)
+        {
+            var theChild = node.Left ?? node.Right;
+            theChild.Parent = node.Parent;
+            switch (NodeLinkedToParentAs(node))
+            {
+                case NodeLinkToParentAs.Right:
+                    node.Parent.Right = theChild;
+                    break;
+                case NodeLinkToParentAs.Left:
+                    node.Parent.Left = theChild;
+                    break;
+                case NodeLinkToParentAs.Root:
+                    node.Parent = null;
+                    break;
+            }
+        }
+
+        private static void DeleteLeafNode(BinaryTreeNode<TKey, TValue> node)
+        {
+            if (NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
+                node.Parent.Right = null;
+            else
+                node.Parent.Left = null;
         }
 
         private void UsePredecessor(BinaryTreeNode<TKey, TValue> node)
