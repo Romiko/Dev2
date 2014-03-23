@@ -39,7 +39,7 @@ namespace ClientImport.DataStructures
                             current = current.Parent;
                             if (current != null)
                             {
-                                var compare = _theSearchTree.comparer.Compare(current.KeyValue.Key, currentKey);
+                                var compare = _theSearchTree.Comparer.Compare(current.KeyValue.Key, currentKey);
                                 if (compare < 0) continue;
                             }
                             break;

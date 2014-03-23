@@ -13,6 +13,50 @@ namespace ClientImport.Tests
     [TestClass]
     public class BinaryTreeTests
     {
+        [TestMethod]
+        public void ShouldNotSelfBalanceWhenAddingLessThanSelfBalanceBufferSizeSortedItems()
+        {
+            //Arrange
+            var tree = new BinarySearchTree<int, object>();
+            //Act
+            Enumerable.Range(1, 5).OrderBy(r => r).ToList().ForEach(r => tree.Add(r, null));
+            //Assert
+            Assert.IsFalse(tree.SelfBalanceBuffer.Count == 0);
+        }
+
+        [TestMethod]
+        public void ShouldSelfBalanceWhenAddingTheSelfBalanceBufferSizeSortedItems()
+        {
+            //Arrange
+            var tree = new BinarySearchTree<int, object>();
+            Enumerable.Range(1, tree.SelfBalanceBufferSize).OrderBy(r => r).ToList().ForEach(r => tree.Add(r, null));
+            //Assert
+            Assert.IsTrue(tree.SelfBalanceBuffer.Count == 0);
+        }
+
+        [TestMethod]
+        public void ShouldNotSelfBalanceWhenAddingTheUnSortedItems()
+        {
+            //Arrange
+            var tree = new BinarySearchTree<int, int> { { 2, 2 }, { 1, 1 }, { 3, 3 }, { 4, 4 }, {5, 5}, {6, 6}, {7, 7}, {8, 8} , {10, 10} };
+            //Act
+            var result = tree.SelfBalance(9, 9);
+            //Assert
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ShouldNotSelfBalanceWhenAddingTheSelfBalanceBufferSizeUnSortedItems()
+        {
+            //Arrange
+            var tree = new BinarySearchTree<int,object>();
+            Enumerable.Range(1, tree.SelfBalanceBufferSize).ToList().ForEach(r => tree.Add(r, null));
+            //Act
+            var result = tree.SelfBalance(0, 0);
+            //Assert
+            Assert.IsFalse(result);
+        }
+
         /// <summary>
         /// The BinarySearchTree acts very similar to the SortedDictionary in .NET, so we can compare how both sort.
         /// </summary>
@@ -320,58 +364,53 @@ namespace ClientImport.Tests
         [TestMethod]
         public void WhenUsingStringAsKeyOrdinalSortIsUsed()
         {
-            var data = new BinarySearchTree<string, object>(StringComparison.Ordinal) { { '\u0069'.ToString(), null }, { '\u0131'.ToString(), null }, { '\u0049'.ToString(), null } };
+            var tree = new BinarySearchTree<string, object>(StringComparison.Ordinal) { { '\u0069'.ToString(), null }, { '\u0131'.ToString(), null }, { '\u0049'.ToString(), null } };
 
             //Assert
-            Assert.IsTrue(data.First().KeyValue.Key == '\u0049'.ToString());
-            Assert.IsTrue(data.Last().KeyValue.Key == '\u0131'.ToString());
+            Assert.IsTrue(tree.First().KeyValue.Key == '\u0049'.ToString());
+            Assert.IsTrue(tree.Last().KeyValue.Key == '\u0131'.ToString());
         }
 
         [TestMethod]
         public void WhenUsingStringAsKeyInVariantCultureSortIsDefault()
         {
             //Arrange Act
-            var data = new BinarySearchTree<string, object> { { '\u0069'.ToString(), null }, { '\u0131'.ToString(), null }, { '\u0049'.ToString(), null } };
+            var tree = new BinarySearchTree<string, object> { { '\u0069'.ToString(), null }, { '\u0131'.ToString(), null }, { '\u0049'.ToString(), null } };
 
             //Assert
-            Assert.IsTrue(data.First().KeyValue.Key == '\u0069'.ToString());
-            Assert.IsTrue(data.Last().KeyValue.Key == '\u0131'.ToString());
+            Assert.IsTrue(tree.First().KeyValue.Key == '\u0069'.ToString());
+            Assert.IsTrue(tree.Last().KeyValue.Key == '\u0131'.ToString());
         }
 
         [TestMethod]
         public void TreeTraversalIsSortedInAscendingOrder()
         {
             // Arrange
-            var data = new BinarySearchTree<int, int>();
+            var tree = new BinarySearchTree<int, int>();
 
             var keys = Enumerable.Range(1, 50).ToList();
-            keys.Shuffle().ForEach(k => data.Add(k, k));
+            keys.Shuffle().ForEach(k => tree.Add(k, k));
 
             var expected = keys.OrderBy(k => k).ToList();
 
             //Act
-            var traversed = data.ToList();
+            var traversed = tree.ToList();
 
             //Assert
             CollectionAssert.AreEqual(expected, traversed.Select(r => r.KeyValue.Key).ToList());
         }
 
-        /// <summary>
-        /// A degenerate tree is a tree where for each parent node, there is only one associated child node. 
-        /// What this means is that in a performance measurement, the tree will essentially behave like a linked list data structure.
-        /// In this case, it will have no left child nodes, so it is a linked list structure.
-        /// </summary>
         [TestMethod]
-        public void UnbalancedTreeIsDegenerateWhenGivenSortedData()
+        public void UnbalancedTreeIsDegenerateWhenGivenSortedDataBelowSelfBalanceBufferSize()
         {
             // Arrange
-            var data = new BinarySearchTree<int, int>();
+            var tree = new BinarySearchTree<int, int>();
 
-            var keys = Enumerable.Range(1, 50).ToList();
-            keys.ForEach(k => data.Add(k, k));
+            var keys = Enumerable.Range(1, tree.SelfBalanceBufferSize - 1).ToList();
+            keys.ForEach(k => tree.Add(k, k));
 
             //Act
-            var traversed = data.ToList();
+            var traversed = tree.ToList();
 
             //Assert
             traversed.ForEach(currentNode =>
@@ -382,17 +421,33 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
-        public void UnbalancedTreeIsNotDegenerateWhenGivenUnSortedData()
+        public void TreeIsSemiBalancedWhenGivenSortedDataBelowSelfBalanceBufferSize()
         {
             // Arrange
-            var data = new BinarySearchTree<int, int>();
+            var tree = new BinarySearchTree<int, int>();
+
+            var keys = Enumerable.Range(1, tree.SelfBalanceBufferSize * 2).ToList();
+            keys.ForEach(k => tree.Add(k, k));
+
+            //Act
+            var traversed = tree.ToList();
+
+            //Assert
+            Assert.IsTrue(traversed[tree.SelfBalanceBufferSize/2].Left != null);
+        }
+
+        [TestMethod]
+        public void TreeIsNotDegenerateWhenGivenUnSortedData()
+        {
+            // Arrange
+            var tree = new BinarySearchTree<int, int>();
             var count = 0;
 
             var keys = Enumerable.Range(1, 50).ToList();
-            keys.Shuffle().ForEach(k => data.Add(k, k));
+            keys.Shuffle().ForEach(k => tree.Add(k, k));
 
             //Act
-            var traversed = data.ToList();
+            var traversed = tree.ToList();
 
             //Assert
             traversed.ForEach(currentNode =>
@@ -409,13 +464,13 @@ namespace ClientImport.Tests
         public void RighttKeyIsAlwaysGreaterThanParentKey()
         {
             // Arrange
-            var data = new BinarySearchTree<int, int>();
+            var tree = new BinarySearchTree<int, int>();
 
             var keys = Enumerable.Range(1, 50).ToList();
-            keys.Shuffle().ForEach(k => data.Add(k, k));
+            keys.Shuffle().ForEach(k => tree.Add(k, k));
 
             //Act
-            var traversed = data.ToList();
+            var traversed = tree.ToList();
 
             //Assert
             traversed.ForEach(currentNode =>
@@ -430,13 +485,13 @@ namespace ClientImport.Tests
         public void LefttKeyIsAlwaysSmallerThanParentKey()
         {
             // Arrange
-            var data = new BinarySearchTree<int, int>();
+            var tree = new BinarySearchTree<int, int>();
 
             var keys = Enumerable.Range(1, 50).ToList();
-            keys.Shuffle().ForEach(k => data.Add(k, k));
+            keys.Shuffle().ForEach(k => tree.Add(k, k));
 
             //Act
-            var traversed = data.ToList();
+            var traversed = tree.ToList();
 
             //Assert
             traversed.ForEach(currentNode =>
