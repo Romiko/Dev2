@@ -76,7 +76,7 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
-        public void CanDeleteNodeWithTwoChildrenRandomChoiceUseSuccessor()
+        public void CanDeleteNodeWithTwoChildrenUseSuccessor()
         {
             //Arrange
             var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
@@ -90,7 +90,7 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
-        public void CanDeleteNodeWithTwoChildrenRandomChoiceUsePredecessor()
+        public void CanDeleteNodeWithTwoChildrenUsePredecessor()
         {
             //Arrange
             var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
@@ -146,24 +146,10 @@ namespace ClientImport.Tests
 
 
         [TestMethod]
-        public void CanDeleteRootNodeWithTwoChildrenNestedBinaryTreeRandomChoice()
+        public void CanDeleteRootNodeWithOneChildrenNestedBinaryTree()
         {
             //Arrange
             var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
-            var expected = new[] { 20, 25, 26, 40, 50, 60 }.ToList();
-            //Act
-            tree.Delete(100);
-            var result = tree.Select(r => r.KeyValue.Value).ToList();
-            //Assert
-            CollectionAssert.AreEquivalent(expected, result);
-        }
-
-        [TestMethod]
-        public void CanDeleteRootNodeWithTwoChildrenNestedBinaryTreeUseSuccessor()
-        {
-            //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
-            tree.ForceDeleteType = InOrderNode.Successor;
             var expected = new[] { 20, 25, 26, 40, 50, 60 }.ToList();
             //Act
             tree.Delete(100);
@@ -176,9 +162,36 @@ namespace ClientImport.Tests
         public void CanDeleteRootNodeWithTwoChildrenNestedBinaryTreeUsePredecessor()
         {
             //Arrange
-            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
+            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 200, 200 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
             tree.ForceDeleteType = InOrderNode.Predecessor;
-            var expected = new[] { 20, 25, 26, 40, 60, 60 }.ToList();
+            var expected = new[] { 20, 25, 26, 40, 50, 60, 200 }.ToList();
+            //Act
+            tree.Delete(100);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
+        public void CanDeleteRootNodeWithTwoChildrenNestedBinaryTreeUseSuccessor()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, {200, 200}, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
+            tree.ForceDeleteType = InOrderNode.Successor;
+            var expected = new[] { 20, 25, 26, 40, 50, 60, 200 }.ToList();
+            //Act
+            tree.Delete(100);
+            var result = tree.Select(r => r.KeyValue.Value).ToList();
+            //Assert
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [TestMethod]
+        public void CanDeleteRootNodeWithTwoChildrenNestedBinaryTreeUseRandom()
+        {
+            //Arrange
+            var tree = new UnbalancedBinaryTree<int, int> { { 100, 100 }, { 200, 200 }, { 50, 50 }, { 40, 40 }, { 25, 25 }, { 26, 26 }, { 60, 60 }, { 20, 20 } };
+            var expected = new[] { 20, 25, 26, 40, 50, 60, 200 }.ToList();
             //Act
             tree.Delete(100);
             var result = tree.Select(r => r.KeyValue.Value).ToList();

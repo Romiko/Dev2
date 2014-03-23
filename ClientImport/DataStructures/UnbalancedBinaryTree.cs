@@ -6,7 +6,7 @@ using System.Globalization;
 namespace ClientImport.DataStructures
 {
     internal enum NodeType {LeafeNode, HasOneChild, HasTwoChildren}
-    internal enum NodeLinkToParentAs {Left, Right}
+    internal enum NodeLinkToParentAs { Root, Left, Right}
     public enum InOrderNode {Successor, Predecessor}
 
     public partial class UnbalancedBinaryTree<TKey, TValue> : IEnumerable<BinaryTreeNode<TKey, TValue>>
@@ -61,23 +61,36 @@ namespace ClientImport.DataStructures
             if (node == null)
                 return;
 
+            Delete(node);
+        }
+
+        private void Delete(BinaryTreeNode<TKey, TValue> node)
+        {
             var nodeType = GetNodeType(node);
 
-            if(nodeType == NodeType.LeafeNode)
+            if (nodeType == NodeType.LeafeNode)
             {
-                if(NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
+                if (NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
                     node.Parent.Right = null;
                 else
                     node.Parent.Left = null;
             }
-            if(nodeType == NodeType.HasOneChild)
+            if (nodeType == NodeType.HasOneChild)
             {
                 var theChild = node.Left ?? node.Right;
                 theChild.Parent = node.Parent;
-                if (NodeLinkedToParentAs(node) == NodeLinkToParentAs.Right)
-                    node.Parent.Right = theChild;
-                else
-                    node.Parent.Left = theChild;
+                switch (NodeLinkedToParentAs(node))
+                {
+                    case NodeLinkToParentAs.Right:
+                        node.Parent.Right = theChild;
+                        break;
+                    case NodeLinkToParentAs.Left:
+                        node.Parent.Left = theChild;
+                        break;
+                    case NodeLinkToParentAs.Root:
+                        node.Parent = null;
+                        break;
+                }
             }
             if (nodeType != NodeType.HasTwoChildren) return;
             var replaceInOrderType = RollDiceForSuccessorOrPredecessor();
@@ -88,30 +101,18 @@ namespace ClientImport.DataStructures
                 UsePredecessor(node);
         }
 
-        private static void UsePredecessor(BinaryTreeNode<TKey, TValue> node)
+        private void UsePredecessor(BinaryTreeNode<TKey, TValue> node)
         {
             var replaceWith = ReadLastRightNode(node.Left);
-            var deletedNodeParent = node.Parent;
-            replaceWith.Parent = deletedNodeParent;
             node.KeyValue = replaceWith.KeyValue;
-
-            node.Left = replaceWith.Left;
-
-            if (node.Left != null) node.Left.Parent = node;
-            if (node.Right != null) node.Right.Parent = node;
+            Delete(replaceWith);
         }
 
-        private static void UseSuccessor(BinaryTreeNode<TKey, TValue> node)
+        private void UseSuccessor(BinaryTreeNode<TKey, TValue> node)
         {
             var replaceWith = ReadLastLeftNode(node.Right);
-            var deletedNodeParent = node.Parent;
-            replaceWith.Parent = deletedNodeParent;
             node.KeyValue = replaceWith.KeyValue;
-
-            node.Right = replaceWith.Right;
-
-            if (node.Left != null) node.Left.Parent = node;
-            if (node.Right != null) node.Right.Parent = node;
+            Delete(replaceWith);
         }
 
         private InOrderNode RollDiceForSuccessorOrPredecessor()
@@ -126,6 +127,8 @@ namespace ClientImport.DataStructures
 
         private static NodeLinkToParentAs NodeLinkedToParentAs(BinaryTreeNode<TKey, TValue> node)
         {
+            if(node.Parent == null)
+                return NodeLinkToParentAs.Root;
             return node.Parent.Left == node ? NodeLinkToParentAs.Left : NodeLinkToParentAs.Right;
         }
 
