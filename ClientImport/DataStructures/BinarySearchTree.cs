@@ -83,6 +83,7 @@ namespace ClientImport.DataStructures
 
         private void DeleteNodeWithTwoChildren(BinaryTreeNode<TKey, TValue> node)
         {
+            // Use random delete method, to avoid degenerate tree structure.
             var replaceInOrderType = RollDiceForSuccessorOrPredecessor();
 
             if (replaceInOrderType == InOrderNode.Successor)
@@ -148,7 +149,7 @@ namespace ClientImport.DataStructures
             return node.Parent.Left == node ? NodeLinkToParentAs.Left : NodeLinkToParentAs.Right;
         }
 
-        private NodeType GetNodeType(BinaryTreeNode<TKey, TValue> node)
+        private static NodeType GetNodeType(BinaryTreeNode<TKey, TValue> node)
         {
             if(node.Left == null && node.Right == null)
                 return NodeType.LeafeNode;
@@ -192,7 +193,6 @@ namespace ClientImport.DataStructures
                             break;
                         }
                 }
-
             }
         }
 
