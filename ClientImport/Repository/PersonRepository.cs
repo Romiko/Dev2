@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ClientImport.DTO;
@@ -6,21 +7,16 @@ using ClientImport.DataStructures;
 
 namespace ClientImport.Repository
 {
-    public interface IBinaryTree<in TKey, in TValue>
+    public partial class PersonRepository : IRepository<IPerson>
     {
-        void Add(TKey key, TValue value);
-    }
-
-    public class PersonRepository : IRepository<IPerson>
-    {
-        public UnbalancedBinaryTree<string, IPerson> Data;
+        private readonly UnbalancedBinaryTree<string, IPerson> data;
         public SortKey DefaultSortKey { get { return defaultSortKey; } }
 
         readonly SortKey defaultSortKey = SortKey.SurnameFirstNameAge;
 
         public PersonRepository()
         {
-            Data = new UnbalancedBinaryTree<string, IPerson>();
+            data = new UnbalancedBinaryTree<string, IPerson>();
         }
 
         public PersonRepository(SortKey sortKey)
@@ -44,10 +40,18 @@ namespace ClientImport.Repository
         {
             var key = BuildKey(person, defaultSortKey);
 
-            if (Data.Find(key) == null)
-                Data.Add(key, person);
+            if (data.Find(key) == null)
+                data.Add(key, person);
             else
                 throw new ArgumentException("Duplicate Key found.");
+        }
+
+        public void Delete(IPerson person)
+        {
+            var key = BuildKey(person, defaultSortKey);
+            var node = data.Find(key);
+            if(node != null)
+                data.Delete(key);
         }
 
         public void Import(IEnumerable<dynamic> records, bool ignoreDuplicates = true)
@@ -65,12 +69,22 @@ namespace ClientImport.Repository
                                  var key = BuildKey(person, defaultSortKey);
                                  if (!ignoreDuplicates)
                                      Add(person);
-                                 else if (Data.Find(key) == null)
+                                 else if (data.Find(key) == null)
                                  {
                                      Add(person);
                                  }
                              }
                    );
+        }
+
+        public IEnumerator<IPerson> GetEnumerator()
+        {
+            return new Enumerator(data.Select(r => r.KeyValue.Value).ToArray());
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

@@ -45,6 +45,7 @@
     <Compile Include="DTO\IPerson.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Importer.cs" />
+    <Compile Include="Repository\PersonRepository.Enumerator.cs" />
     <Compile Include="Repository\IRepository.cs" />
     <Compile Include="Parsers\DelimiterLine.cs" />
     <Compile Include="Parsers\DelimiterParser.cs" />

@@ -18,7 +18,7 @@ namespace ClientImport.Tests
             var repository = new PersonRepository();
 
             // Assert
-            Assert.IsNotNull(repository.Data);
+            Assert.IsNotNull(repository.ToList());
         }
 
         [TestMethod]
@@ -42,6 +42,42 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
+        public void CanAddAPerson()
+        {
+            // Arrange
+            var repository = new PersonRepository();
+            var person1 = new Person { Age = 1, FirstName = "Alpha", Surname = "Beta" };
+
+            //Act
+            repository.Add(person1);
+
+            // Assert
+            Assert.AreEqual(repository.ToList().First(), person1);
+        }
+
+        [TestMethod]
+        public void CanDeletePerson()
+        {
+            // Arrange
+            var repository = new PersonRepository();
+            var person1 = new Person { Age = 1, FirstName = "Zebra", Surname = "Zebra" };
+            var person2 = new Person { Age = 1, FirstName = "Alpha", Surname = "Beta" };
+            var person3 = new Person { Age = 1, FirstName = "MandM", Surname = "MandM" };
+
+            //Act
+            repository.Add(person1);
+            repository.Add(person2);
+            repository.Add(person3);
+            repository.Delete(person2);
+
+            // Assert
+            Assert.AreEqual(repository.Count(), 2);
+            Assert.IsTrue(repository.Contains(person3));
+            Assert.IsTrue(repository.Contains(person1));
+            Assert.IsFalse(repository.Contains(person2));
+        }
+
+        [TestMethod]
         public void DataIsSortedUsingDefaultSortKey()
         {
             // Arrange
@@ -56,8 +92,8 @@ namespace ClientImport.Tests
             repository.Add(person2);
 
             // Assert
-            Assert.AreEqual(repository.Data.ToList().First().KeyValue.Value, person2);
-            Assert.AreEqual(repository.Data.ToList().Last().KeyValue.Value, person1);
+            Assert.AreEqual(repository.First(), person2);
+            Assert.AreEqual(repository.Last(), person1);
         }
 
         [TestMethod]
@@ -75,8 +111,8 @@ namespace ClientImport.Tests
             repository.Add(person3);
 
             // Assert
-            Assert.AreEqual(repository.Data.ToList().First().KeyValue.Value, person3);
-            Assert.AreEqual(repository.Data.ToList().Last().KeyValue.Value, person2);
+            Assert.AreEqual(repository.First(), person3);
+            Assert.AreEqual(repository.Last(), person2);
         }
 
         [TestMethod]
@@ -91,7 +127,7 @@ namespace ClientImport.Tests
             repository.Import(importer.Data);
 
             // Assert
-            Assert.AreEqual(49817, repository.Data.Count());
+            Assert.AreEqual(49817, repository.Count());
         }
 
         [TestMethod]
@@ -119,9 +155,9 @@ namespace ClientImport.Tests
             repository.Import(importer.Data);
 
             // Assert
-            var first = repository.Data.First();
-            Assert.AreEqual("Abbot", first.KeyValue.Value.Surname);
-            Assert.AreEqual("Abbas", first.KeyValue.Value.FirstName);
+            var first = repository.First();
+            Assert.AreEqual("Abbot", first.Surname);
+            Assert.AreEqual("Abbas", first.FirstName);
         }
 
         [TestMethod]
@@ -136,9 +172,9 @@ namespace ClientImport.Tests
             repository.Import(importer.Data);
 
             // Assert
-            var last = repository.Data.Last();
-            Assert.AreEqual("Zunkel", last.KeyValue.Value.Surname);
-            Assert.AreEqual("Nj", last.KeyValue.Value.FirstName);
+            var last = repository.Last();
+            Assert.AreEqual("Zunkel", last.Surname);
+            Assert.AreEqual("Nj", last.FirstName);
         }
     }
 }
