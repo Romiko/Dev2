@@ -34,29 +34,6 @@ namespace ClientImport.Tests
             Assert.IsTrue(tree.SelfBalanceBuffer.Count == 0);
         }
 
-        [TestMethod]
-        public void ShouldNotSelfBalanceWhenAddingTheUnSortedItems()
-        {
-            //Arrange
-            var tree = new BinarySearchTree<int, int> { { 2, 2 }, { 1, 1 }, { 3, 3 }, { 4, 4 }, {5, 5}, {6, 6}, {7, 7}, {8, 8} , {10, 10} };
-            //Act
-            var result = tree.SelfBalance(9, 9);
-            //Assert
-            Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void ShouldNotSelfBalanceWhenAddingTheSelfBalanceBufferSizeUnSortedItems()
-        {
-            //Arrange
-            var tree = new BinarySearchTree<int,object>();
-            Enumerable.Range(1, tree.SelfBalanceBufferSize).ToList().ForEach(r => tree.Add(r, null));
-            //Act
-            var result = tree.SelfBalance(0, 0);
-            //Assert
-            Assert.IsFalse(result);
-        }
-
         /// <summary>
         /// The BinarySearchTree acts very similar to the SortedDictionary in .NET, so we can compare how both sort.
         /// </summary>
@@ -401,7 +378,7 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
-        public void UnbalancedTreeIsDegenerateWhenGivenSortedDataBelowSelfBalanceBufferSize()
+        public void TreeIsDegenerateWhenGivenSortedDataBelowSelfBalanceBufferSize()
         {
             // Arrange
             var tree = new BinarySearchTree<int, int>();
@@ -421,7 +398,7 @@ namespace ClientImport.Tests
         }
 
         [TestMethod]
-        public void TreeIsSemiBalancedWhenGivenSortedDataBelowSelfBalanceBufferSize()
+        public void TreeIsSemiBalancedWhenGivenSortedDataAboveSelfBalanceBufferSize()
         {
             // Arrange
             var tree = new BinarySearchTree<int, int>();
